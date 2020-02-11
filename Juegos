@@ -1,0 +1,142 @@
+package juego;
+import java.awt.BorderLayout;
+import java.awt.Font;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import javax.swing.JApplet;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+import java.lang.Math;
+import java.text.DecimalFormat;
+import javax.swing.Timer;
+public class NumeroSecreto extends JApplet implements ActionListener{
+	private JTextField num=null;
+	private JButton probar=null;
+	private JButton juegoNuevo=null;
+	private JLabel timeLabel;
+	private static JLabel msg=null;
+	private byte centiseconds=0;
+    private byte seconds=30;
+    private short minutes=0;
+    private DecimalFormat timeFormatter;
+    private Timer timer;
+    int numale=((int)(Math.random()*100));
+	public void init(){
+    	this.getContentPane().setLayout(new BorderLayout());
+    	num=new JTextField();
+    	num.setHorizontalAlignment(SwingConstants.RIGHT);
+    	JPanel aux=new JPanel();
+    	aux.setLayout(new GridLayout(2,2));
+    	aux.add(new JLabel(this.getParameter("TEXTO1")));
+    	aux.add(num);
+    	this.getContentPane().add(aux,BorderLayout.NORTH);
+    	aux=new JPanel();
+    	probar=new JButton(this.getParameter("TEXTO2"));
+    	probar.setName("Probar");
+    	probar.addActionListener(this);
+    	aux.add(probar);
+    	juegoNuevo=new JButton(this.getParameter("TEXTO3"));
+    	aux.add(juegoNuevo);
+    	juegoNuevo.setName("Juego nuevo");
+    	juegoNuevo.addActionListener(this);
+    	timeLabel=new JLabel();
+        timeLabel.setFont(new Font("Consolas",Font.PLAIN,13));
+        timeLabel.setHorizontalAlignment(JLabel.CENTER);
+        aux.add(timeLabel);
+        msg=new JLabel();
+        msg.setHorizontalAlignment(JLabel.CENTER);
+        aux.add(msg);
+    	this.getContentPane().add(aux,BorderLayout.SOUTH);
+    	num.setText("0");
+    	num.setEditable(false);
+    	probar.setEnabled(false);
+    	juegoNuevo.addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent e){
+            	timer.stop();
+                centiseconds=00;
+                seconds=30;
+                minutes=00;
+                timeLabel.setText(timeFormatter.format(minutes)+":"+timeFormatter.format(seconds)+"."+timeFormatter.format(centiseconds));
+                timer.start();
+                num.setEditable(true);
+                probar.setEnabled(true);
+                juegoNuevo.setEnabled(false);
+            }
+    	});
+    	probar.addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent e){
+                String text=num.getText();
+                int numa=Integer.valueOf(text);
+                boolean acierto=false;
+                do{
+                	if(numa==numale){
+                		timer.stop();
+                		msg.setVisible(false);
+                		msg.setText("Acertaste!");
+                		msg.setVisible(true);
+                		//msg.repaint();
+                		num.setEditable(false);
+                		probar.setEnabled(false);
+                		juegoNuevo.setEnabled(true);
+                		acierto=true;
+                	}else{
+                		if(numa<numale){
+                			msg.setVisible(false);
+                			msg.setText("Demasiado pequeño!");
+                			msg.setVisible(true);
+                			//msg.repaint();
+                			acierto=false;
+                		}else{
+                			msg.setVisible(false);
+                			msg.setText("Demasiado grande!");
+                			msg.setVisible(true);
+                			//msg.repaint();
+                			acierto=false;
+                		}
+                	}
+                	if(seconds==00){
+                		msg.setVisible(false);
+                		msg.setText("Lo siento, has perdido!");
+                		msg.setVisible(true);
+                		//msg.repaint();
+                		timer.stop();
+                		num.setEditable(false);
+                		probar.setEnabled(false);
+                		juegoNuevo.setEnabled(true);
+                	}
+                }while(acierto=false);
+            }
+        });
+    	timeFormatter=new DecimalFormat("00");
+        timer=new Timer(10,new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e){
+                if(centiseconds>0){
+                    centiseconds--;
+                }else{
+                    if(seconds==0&&minutes==0){
+                        timer.stop();
+                    }else if(seconds>0){
+                        seconds--;
+                        centiseconds=99;
+                    }else if(minutes>0){
+                        minutes--;
+                        seconds=30;
+                        centiseconds=99;
+                    }
+                }
+                timeLabel.setText(timeFormatter.format(minutes)+":"+timeFormatter.format(seconds)+"."+timeFormatter.format(centiseconds));
+            }
+        });
+        timeLabel.setText(timeFormatter.format(minutes)+":"+timeFormatter.format(seconds)+"."+timeFormatter.format(centiseconds));
+        add(aux);
+        setVisible(true);
+	}
+	@Override
+	public void actionPerformed(ActionEvent e){
+	}
+}
